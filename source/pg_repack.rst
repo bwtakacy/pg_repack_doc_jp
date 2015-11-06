@@ -118,41 +118,41 @@ pg_repackは、PGXNのWebサイトから `ダウンロード`__ できます。
 
 
 
-Installation
-------------
-
-pg_repack can be built with ``make`` on UNIX or Linux. The PGXS build
-framework is used automatically. Before building, you might need to install
-the PostgreSQL development packages (``postgresql-devel``, etc.) and add the
-directory containing ``pg_config`` to your ``$PATH``. Then you can run::
-
-    $ cd pg_repack
-    $ make
-    $ sudo make install
-
-You can also use Microsoft Visual C++ 2010 to build the program on Windows.
-There are project files in the ``msvc`` folder.
-
-After installation, load the pg_repack extension in the database you want to
-process. On PostgreSQL 9.1 and following pg_repack is packaged as an
-extension, so you can execute::
-
-    $ psql -c "CREATE EXTENSION pg_repack" -d your_database
-
-For previous PostgreSQL versions you should load the script
-``$SHAREDIR/contrib/pg_repack.sql`` in the database to process; you can
-get ``$SHAREDIR`` using ``pg_config --sharedir``, e.g. ::
-
-    $ psql -f "$(pg_config --sharedir)/contrib/pg_repack.sql" -d your_database
-
-You can remove pg_repack from a PostgreSQL 9.1 and following database using
-``DROP EXTENSION pg_repack``. For previous Postgresql versions load the
-``$SHAREDIR/contrib/uninstall_pg_repack.sql`` script or just drop the
-``repack`` schema.
-
-If you are upgrading from a previous version of pg_repack or pg_reorg, just
-drop the old version from the database as explained above and install the new
-version.
+.. Installation
+  ------------
+  
+  pg_repack can be built with ``make`` on UNIX or Linux. The PGXS build
+  framework is used automatically. Before building, you might need to install
+  the PostgreSQL development packages (``postgresql-devel``, etc.) and add the
+  directory containing ``pg_config`` to your ``$PATH``. Then you can run::
+  
+      $ cd pg_repack
+      $ make
+      $ sudo make install
+  
+  You can also use Microsoft Visual C++ 2010 to build the program on Windows.
+  There are project files in the ``msvc`` folder.
+  
+  After installation, load the pg_repack extension in the database you want to
+  process. On PostgreSQL 9.1 and following pg_repack is packaged as an
+  extension, so you can execute::
+  
+      $ psql -c "CREATE EXTENSION pg_repack" -d your_database
+  
+  For previous PostgreSQL versions you should load the script
+  ``$SHAREDIR/contrib/pg_repack.sql`` in the database to process; you can
+  get ``$SHAREDIR`` using ``pg_config --sharedir``, e.g. ::
+  
+      $ psql -f "$(pg_config --sharedir)/contrib/pg_repack.sql" -d your_database
+  
+  You can remove pg_repack from a PostgreSQL 9.1 and following database using
+  ``DROP EXTENSION pg_repack``. For previous Postgresql versions load the
+  ``$SHAREDIR/contrib/uninstall_pg_repack.sql`` script or just drop the
+  ``repack`` schema.
+  
+  If you are upgrading from a previous version of pg_repack or pg_reorg, just
+  drop the old version from the database as explained above and install the new
+  version.
 
 インストール
 ------------
@@ -222,6 +222,42 @@ Generic options:
   --help                    show this help, then exit
   --version                 output version information, then exit
 
+利用方法
+---------
+
+::
+
+    pg_repack [OPTION]... [DBNAME]
+
+OPTIONには以下のものが指定できます。
+
+固有オプション:
+  -a, --all                 すべてのデータベースに対して実行します
+  -t, --table=TABLE         指定したテーブルに対して実行します
+  -c, --schema=SCHEMA       指定したスキーマに存在するテーブル全てに対して実行します
+  -s, --tablespace=TBLSPC   指定したテーブル空間に再編成後のテーブルを配置します
+  -S, --moveidx             -s/--tablespaceで指定したテーブル空間に再編成対象のテーブルに付与されたインデックスも配置します
+  -o, --order-by=COLUMNS    指定したカラムの値順に再編成します
+  -n, --no-order            オンラインVACUUM FULL相当の処理を行います
+  -N, --dry-run             実際の処理は行わず、メッセージのみだけ出力します
+  -j, --jobs=NUM            指定した並列度で処理を行います
+  -i, --index=INDEX         指定したインデックスのみ再編成します
+  -x, --only-indexes        指定したテーブルに付与されたインデックスだけを再編成します
+  -T, --wait-timeout=SECS   ロック競合を起こした他のトランザクションをキャンセルするまで待機する時間を指定します
+  -Z, --no-analyze          再編成後にANALYZEを行いません
+
+接続オプション:
+  -d, --dbname=DBNAME       接続する対象のデータベースを指定します
+  -h, --host=HOSTNAME       接続する対象のホスト名、もしくはUNIXソケットドメインディレクトリを指定します
+  -p, --port=PORT           接続する対象のデータベース・サーバのポート番号を指定します
+  -U, --username=USERNAME   接続するユーザ名を指定します
+  -w, --no-password         パスワードの入力表示を無効化します
+  -W, --password            パスワード入力表示を強制的に表示します
+
+一般オプション:
+  -e, --echo                サーバに送信するSQLを表示します
+  -E, --elevel=LEVEL        ログ出力レベルを指定します
+  --help                    使用方法を表示します
 
 Reorg Options
 ^^^^^^^^^^^^^
