@@ -184,43 +184,43 @@ pg_repackの登録を削除するには、PostgreSQL 9.1以上のバージョン
 
 pg_repackもしくはpg_reorgの古いバージョンからのアップグレードを行うには、古いバージョンをデータベースから上記の手順で削除し、新しいバージョンを登録します。
 
-Usage
------
-
-::
-
-    pg_repack [OPTION]... [DBNAME]
-
-The following options can be specified in ``OPTIONS``.
-
-Options:
-  -a, --all                 repack all databases
-  -t, --table=TABLE         repack specific table only
-  -c, --schema=SCHEMA       repack tables in specific schema only
-  -s, --tablespace=TBLSPC   move repacked tables to a new tablespace
-  -S, --moveidx             move repacked indexes to *TBLSPC* too
-  -o, --order-by=COLUMNS    order by columns instead of cluster keys
-  -n, --no-order            do vacuum full instead of cluster
-  -N, --dry-run             print what would have been repacked and exit
-  -j, --jobs=NUM            Use this many parallel jobs for each table
-  -i, --index=INDEX         move only the specified index
-  -x, --only-indexes        move only indexes of the specified table
-  -T, --wait-timeout=SECS   timeout to cancel other backends on conflict
-  -Z, --no-analyze          don't analyze at end
-
-Connection options:
-  -d, --dbname=DBNAME       database to connect
-  -h, --host=HOSTNAME       database server host or socket directory
-  -p, --port=PORT           database server port
-  -U, --username=USERNAME   user name to connect as
-  -w, --no-password         never prompt for password
-  -W, --password            force password prompt
-
-Generic options:
-  -e, --echo                echo queries
-  -E, --elevel=LEVEL        set output message level
-  --help                    show this help, then exit
-  --version                 output version information, then exit
+.. Usage
+  -----
+  
+  ::
+  
+      pg_repack [OPTION]... [DBNAME]
+  
+  The following options can be specified in ``OPTIONS``.
+  
+  Options:
+    -a, --all                 repack all databases
+    -t, --table=TABLE         repack specific table only
+    -c, --schema=SCHEMA       repack tables in specific schema only
+    -s, --tablespace=TBLSPC   move repacked tables to a new tablespace
+    -S, --moveidx             move repacked indexes to *TBLSPC* too
+    -o, --order-by=COLUMNS    order by columns instead of cluster keys
+    -n, --no-order            do vacuum full instead of cluster
+    -N, --dry-run             print what would have been repacked and exit
+    -j, --jobs=NUM            Use this many parallel jobs for each table
+    -i, --index=INDEX         move only the specified index
+    -x, --only-indexes        move only indexes of the specified table
+    -T, --wait-timeout=SECS   timeout to cancel other backends on conflict
+    -Z, --no-analyze          don't analyze at end
+  
+  Connection options:
+    -d, --dbname=DBNAME       database to connect
+    -h, --host=HOSTNAME       database server host or socket directory
+    -p, --port=PORT           database server port
+    -U, --username=USERNAME   user name to connect as
+    -w, --no-password         never prompt for password
+    -W, --password            force password prompt
+  
+  Generic options:
+    -e, --echo                echo queries
+    -E, --elevel=LEVEL        set output message level
+    --help                    show this help, then exit
+    --version                 output version information, then exit
 
 利用方法
 ---------
@@ -259,34 +259,55 @@ OPTIONには以下のものが指定できます。
   -E, --elevel=LEVEL        ログ出力レベルを指定します
   --help                    使用方法を表示します
 
-Reorg Options
-^^^^^^^^^^^^^
+.. Reorg Options
+  ^^^^^^^^^^^^^
 
-``-a``, ``--all``
+再編成オプション
+----------------
+
+.. ``-a``, ``--all``
     Attempt to repack all the databases of the cluster. Databases where the
     ``pg_repack`` extension is not installed will be skipped.
 
-``-t TABLE``, ``--table=TABLE``
+``-a``, ``--all``
+    データベースクラスタのすべてのデータベースを再編成します。pg_repackのエクステンションがインストールされていないデータベースはスキップされます。
+
+.. ``-t TABLE``, ``--table=TABLE``
     Reorganize the specified table(s) only. Multiple tables may be
     reorganized by writing multiple ``-t`` switches. By default, all eligible
     tables in the target databases are reorganized.
 
-``-c``, ``--schema``
+``-t TABLE``, ``--table=TABLE``
+    指定したテーブルのみを再編成します。``-t``オプションを複数同時に使用することで、複数のテーブルを指定することができます。このオプションを指定しない限り、対象のデータベースに存在するすべてのテーブルを再編成します。
+
+.. ``-c``, ``--schema``
     Repack the tables in the specified schema(s) only. Multiple schemas may
     be repacked by writing multiple ``-c`` switches. May be used in
     conjunction with ``--tablespace`` to move tables to a different tablespace.
 
-``-o COLUMNS [,...]``, ``--order-by=COLUMNS [,...]``
+``-c``, ``--schema``
+    指定したスキーマに存在するテーブルを再編成します。``-c``オプションを複数同時に指定することで、複数のスキーマを指定することができます。``--tablespace``オプションと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する利用例が挙げられます。
+
+.. ``-o COLUMNS [,...]``, ``--order-by=COLUMNS [,...]``
     Perform an online CLUSTER ordered by the specified columns.
 
-``-n``, ``--no-order``
+``-o COLUMNS [,...]``, ``--order-by=COLUMNS [,...]``
+    指定したカラムの値を用いてオンラインCLUSTER処理を実行します。
+
+.. ``-n``, ``--no-order``
     Perform an online VACUUM FULL.  Since version 1.2 this is the default for
     non-clustered tables.
 
-``-N``, ``--dry-run``
+``-n``, ``--no-order``
+    オンラインVACUUM FULL処理を実行します。バージョン1.2から、クラスタキーのないテーブルに対してはこれがデフォルトの挙動になっています。
+
+.. ``-N``, ``--dry-run``
     List what would be repacked and exit.
 
-``-j``, ``--jobs``
+``-N``, ``--dry-run``
+    実際の処理は実行せずに、実施する内容についてのメッセージだけを出力します。
+
+.. ``-j``, ``--jobs``
     Create the specified number of extra connections to PostgreSQL, and
     use these extra connections to parallelize the rebuild of indexes
     on each table. Parallel index builds are only supported for full-table
@@ -294,25 +315,42 @@ Reorg Options
     PostgreSQL server has extra cores and disk I/O available, this can be a
     useful way to speed up pg_repack.
 
-``-s TBLSPC``, ``--tablespace=TBLSPC``
+``-j``, ``--jobs``
+    指定した数だけ追加でPostgreSQLへのコネクションを作成し、それらのコネクションを使って並列でインデックス作成処理を行います。並列でのインデックス作成は、テーブル全体を再編成する場合にのみ有効です。``--index``や``--only-indexes``オプションとは同時に利用できません。PostgreSQLサーバが許容するコネクション数およびディスクI/O負荷に余裕がある場合には、このオプションを利用することでpg_repackの処理を高速化することが期待できます。
+
+.. ``-s TBLSPC``, ``--tablespace=TBLSPC``
     Move the repacked tables to the specified tablespace: essentially an
     online version of ``ALTER TABLE ... SET TABLESPACE``. The tables' indexes
     are left in the original tablespace unless ``--moveidx`` is specified too.
 
-``-S``, ``--moveidx``
+``-s TBLSPC``, ``--tablespace=TBLSPC``
+    再編成したテーブルを指定したテーブル空間に移動します。即ち、``ALTER TABLE ... SET TABLESPACE```相当の処理をオンラインで実施します。``--moveidx``オプションを併用しない限り、再編成したテーブルのインデックスは元のテーブル空間に残されます。
+
+.. ``-S``, ``--moveidx``
     Also move the indexes of the repacked tables to the tablespace specified
     by the ``--tablespace`` option.
 
-``-i``, ``--index``
+``-S``, ``--moveidx``
+    ``--tablespace`` オプションと併用することで、再編成したテーブルのインデックスも指定したテーブル空間に移動します。
+
+.. ``-i``, ``--index``
     Repack the specified index(es) only. Multiple indexes may be repacked
     by writing multiple ``-i`` switches. May be used in conjunction with
     ``--tablespace`` to move the index to a different tablespace.
 
-``-x``, ``--only-indexes``
+``-i``, ``--index``
+    指定したインデックスのみを再編成します。``-i``オプションを複数同時に指定することで、複数のインデックスを指定することができます。``--tablespace``オプシ
+ョンと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する
+利用例が挙げられます。
+
+.. ``-x``, ``--only-indexes``
     Repack only the indexes of the specified table(s), which must be specified
     with the ``--table`` option.
 
-``-T SECS``, ``--wait-timeout=SECS``
+``-x``, ``--only-indexes``
+    ``--table`` オプションと併用することで、指定したテーブルのインデックスのみを再編成します。
+
+.. ``-T SECS``, ``--wait-timeout=SECS``
     pg_repack needs to take an exclusive lock at the end of the
     reorganization.  This setting controls how many seconds pg_repack will
     wait to acquire this lock. If the lock cannot be taken after this duration,
@@ -321,10 +359,16 @@ Reorg Options
     pg_terminate_backend() to disconnect any remaining backends after
     twice this timeout has passed. The default is 60 seconds.
 
-``-Z``, ``--no-analyze``
+``-T SECS``, ``--wait-timeout=SECS``
+    pg_repackは再編成の完了直前にEXCLUSIVE LOCKを利用します。このオプションは、このロック取得時に何秒間pg_repackが取得を待機するかを指定します。指定した時間経ってもロックが取得できない場合、pg_repackは競合するクエリを強制的にキャンセルさせます。PostgreSQL 8.4以上のバージョンを利用している場合、指定した時間の2倍以上経ってもロックが取得できない場合、pg_repackは競合するクエリを実行しているPostgreSQLバックエンドプロセスをpg_terminate_backend()関数により強制的に停止させます。このオプションのデフォルトは60秒です。
+
+
+.. ``-Z``, ``--no-analyze``
     Disable ANALYZE after a full-table reorganization. If not specified, run
     ANALYZE after the reorganization.
 
+``-Z``, ``--no-analyze``
+    再編成終了後にANALYZEを行うことを無効にします。デフォルトでは再編成完了後に統計情報を更新するためANALYZEを実行します。
 
 Connection Options
 ^^^^^^^^^^^^^^^^^^
