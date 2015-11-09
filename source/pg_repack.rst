@@ -278,7 +278,7 @@ OPTIONには以下のものが指定できます。
     tables in the target databases are reorganized.
 
 ``-t TABLE``, ``--table=TABLE``
-    指定したテーブルのみを再編成します。``-t``オプションを複数同時に使用することで、複数のテーブルを指定することができます。このオプションを指定しない限り、対象のデータベースに存在するすべてのテーブルを再編成します。
+    指定したテーブルのみを再編成します。 ``-t`` オプションを複数同時に使用することで、複数のテーブルを指定することができます。このオプションを指定しない限り、対象のデータベースに存在するすべてのテーブルを再編成します。
 
 .. ``-c``, ``--schema``
     Repack the tables in the specified schema(s) only. Multiple schemas may
@@ -286,7 +286,7 @@ OPTIONには以下のものが指定できます。
     conjunction with ``--tablespace`` to move tables to a different tablespace.
 
 ``-c``, ``--schema``
-    指定したスキーマに存在するテーブルを再編成します。``-c``オプションを複数同時に指定することで、複数のスキーマを指定することができます。``--tablespace``オプションと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する利用例が挙げられます。
+    指定したスキーマに存在するテーブルを再編成します。 ``-c`` オプションを複数同時に指定することで、複数のスキーマを指定することができます。 ``--tablespace`` オプションと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する利用例が挙げられます。
 
 .. ``-o COLUMNS [,...]``, ``--order-by=COLUMNS [,...]``
     Perform an online CLUSTER ordered by the specified columns.
@@ -316,7 +316,7 @@ OPTIONには以下のものが指定できます。
     useful way to speed up pg_repack.
 
 ``-j``, ``--jobs``
-    指定した数だけ追加でPostgreSQLへのコネクションを作成し、それらのコネクションを使って並列でインデックス作成処理を行います。並列でのインデックス作成は、テーブル全体を再編成する場合にのみ有効です。``--index``や``--only-indexes``オプションとは同時に利用できません。PostgreSQLサーバが許容するコネクション数およびディスクI/O負荷に余裕がある場合には、このオプションを利用することでpg_repackの処理を高速化することが期待できます。
+    指定した数だけ追加でPostgreSQLへのコネクションを作成し、それらのコネクションを使って並列でインデックス作成処理を行います。並列でのインデックス作成は、テーブル全体を再編成する場合にのみ有効です。 ``--index`` や ``--only-indexes`` オプションとは同時に利用できません。PostgreSQLサーバが許容するコネクション数およびディスクI/O負荷に余裕がある場合には、このオプションを利用することでpg_repackの処理を高速化することが期待できます。
 
 .. ``-s TBLSPC``, ``--tablespace=TBLSPC``
     Move the repacked tables to the specified tablespace: essentially an
@@ -324,7 +324,7 @@ OPTIONには以下のものが指定できます。
     are left in the original tablespace unless ``--moveidx`` is specified too.
 
 ``-s TBLSPC``, ``--tablespace=TBLSPC``
-    再編成したテーブルを指定したテーブル空間に移動します。即ち、``ALTER TABLE ... SET TABLESPACE```相当の処理をオンラインで実施します。``--moveidx``オプションを併用しない限り、再編成したテーブルのインデックスは元のテーブル空間に残されます。
+    再編成したテーブルを指定したテーブル空間に移動します。即ち、 ``ALTER TABLE ... SET TABLESPACE`` 相当の処理をオンラインで実施します。 ``--moveidx`` オプションを併用しない限り、再編成したテーブルのインデックスは元のテーブル空間に残されます。
 
 .. ``-S``, ``--moveidx``
     Also move the indexes of the repacked tables to the tablespace specified
@@ -339,9 +339,7 @@ OPTIONには以下のものが指定できます。
     ``--tablespace`` to move the index to a different tablespace.
 
 ``-i``, ``--index``
-    指定したインデックスのみを再編成します。``-i``オプションを複数同時に指定することで、複数のインデックスを指定することができます。``--tablespace``オプシ
-ョンと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する
-利用例が挙げられます。
+    指定したインデックスのみを再編成します。 ``-i`` オプションを複数同時に指定することで、複数のインデックスを指定することができます。 ``--tablespace`` オプションと同時に使用することで、特定のスキーマのテーブルを別のテーブル空間に移動する利用例が挙げられます。
 
 .. ``-x``, ``--only-indexes``
     Repack only the indexes of the specified table(s), which must be specified
@@ -370,68 +368,112 @@ OPTIONには以下のものが指定できます。
 ``-Z``, ``--no-analyze``
     再編成終了後にANALYZEを行うことを無効にします。デフォルトでは再編成完了後に統計情報を更新するためANALYZEを実行します。
 
-Connection Options
-^^^^^^^^^^^^^^^^^^
+.. Connection Options
+   ^^^^^^^^^^^^^^^^^^
+  Options to connect to servers. You cannot use ``--all`` and ``--dbname`` or
+  ``--table`` together.
 
-Options to connect to servers. You cannot use ``--all`` and ``--dbname`` or
-``--table`` together.
+接続オプション
+---------------
 
-``-a``, ``--all``
+PostgreSQLサーバに接続するためのオプションです。
+``--all`` オプションと同時に ``--dbname`` や ``--table`` を利用することはできません。
+
+
+.. ``-a``, ``--all``
     Reorganize all databases.
 
-``-d DBNAME``, ``--dbname=DBNAME``
+``-a``, ``--all``
+    すべてのデータベースを再編成します。
+
+.. ``-d DBNAME``, ``--dbname=DBNAME``
     Specifies the name of the database to be reorganized. If this is not
     specified and ``-a`` (or ``--all``) is not used, the database name is read
     from the environment variable PGDATABASE. If that is not set, the user
     name specified for the connection is used.
 
-``-h HOSTNAME``, ``--host=HOSTNAME``
+``-d DBNAME``, ``--dbname=DBNAME``
+    指定したデータベースのみを再編成します。このオプションや ``-a`` ( ``--all`` )オプションを指定しなかった場合、環境変数PGDATABASEで指定されたデータベースを再編成します。PGDATABASEも指定されていない場合、接続に利用するユーザ名と同じ名称のデータベースを再編成します。
+
+.. ``-h HOSTNAME``, ``--host=HOSTNAME``
     Specifies the host name of the machine on which the server is running. If
     the value begins with a slash, it is used as the directory for the Unix
     domain socket.
 
-``-p PORT``, ``--port=PORT``
+``-h HOSTNAME``, ``--host=HOSTNAME``
+    指定したホスト名を持つサーバ上のPostgreSQLに接続します。指定した値が ``/`` で始まる場合、Unixドメインソケットが配置されたディレクトリと解釈して接続します。
+
+.. ``-p PORT``, ``--port=PORT``
     Specifies the TCP port or local Unix domain socket file extension on which
     the server is listening for connections.
 
-``-U USERNAME``, ``--username=USERNAME``
+``-p PORT``, ``--port=PORT``
+    指定したポート番号でPostgreSQLサーバに接続します。
+
+.. ``-U USERNAME``, ``--username=USERNAME``
     User name to connect as.
 
-``-w``, ``--no-password``
+``-U USERNAME``, ``--username=USERNAME``
+    指定したユーザ名でPostgreSQLサーバに接続します。
+
+.. ``-w``, ``--no-password``
     Never issue a password prompt. If the server requires password
     authentication and a password is not available by other means such as a
     ``.pgpass`` file, the connection attempt will fail. This option can be
     useful in batch jobs and scripts where no user is present to enter a
     password.
 
-``-W``, ``--password``
+``-w``, ``--no-password``
+    接続時にパスワード入力プロンプトを表示されないようにします。もし接続先のPostgreSQLサーバがパスワード認証を要求していて、パスワードが``.pgpass``ファイルなどの手段で取得できない場合、pg_repackは接続に失敗します。このオプションはパスワード入力なしで接続できるユーザを用いたバッチ処理やスクリプトにて利用します。
+
+.. ``-W``, ``--password``
     Force the program to prompt for a password before connecting to a
     database.
-
+  
     This option is never essential, since the program will automatically
     prompt for a password if the server demands password authentication.
     However, pg_repack will waste a connection attempt finding out that the
     server wants a password. In some cases it is worth typing ``-W`` to avoid
     the extra connection attempt.
 
+``-W``, ``--password``
+    接続時にパスワード入力プロンプトを強制的に表示します。
+    サーバがパスワード認証を要求する場合、そもそも自動的にパスワード入力が促されるため、このオプションが重要になることはありません。
+    しかし、サーバにパスワードが必要かどうかを判断するための接続試行を無駄に行います。 
+    こうした余計な接続試行を防ぎたいのであれば、このオプションが利用してください。
 
-Generic Options
-^^^^^^^^^^^^^^^
 
-``-e``, ``--echo``
+.. Generic Options
+   ^^^^^^^^^^^^^^^
+
+一般オプション
+--------------
+
+.. ``-e``, ``--echo``
     Echo commands sent to server.
 
-``-E LEVEL``, ``--elevel=LEVEL``
+``-e``, ``--echo``
+    サーバに送信するSQLを表示します。
+
+.. ``-E LEVEL``, ``--elevel=LEVEL``
     Choose the output message level from ``DEBUG``, ``INFO``, ``NOTICE``,
     ``WARNING``, ``ERROR``, ``LOG``, ``FATAL``, and ``PANIC``. The default is
     ``INFO``.
 
-``--help``
+``-E LEVEL``, ``--elevel=LEVEL``
+    ログ出力レベルを設定します。 ``DEBUG``, ``INFO``. ``NOTICE``, ``WARNING``, ``ERROR``, ``LOG``, ``FATAL``, ``PANIC`` から選択できます。デフォルトは ``INFO``です。
+
+.. ``--help``
     Show usage of the program.
 
-``--version``
+``--help``
+    利用方法についての説明を表示します。
+
+.. ``--version``
     Show the version number of the program.
 
+``--version``
+    バージョン情報を表示します。
 
 Environment
 -----------
