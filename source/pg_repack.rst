@@ -461,7 +461,7 @@ PostgreSQLサーバに接続するためのオプションです。
     ``INFO``.
 
 ``-E LEVEL``, ``--elevel=LEVEL``
-    ログ出力レベルを設定します。 ``DEBUG``, ``INFO``. ``NOTICE``, ``WARNING``, ``ERROR``, ``LOG``, ``FATAL``, ``PANIC`` から選択できます。デフォルトは ``INFO``です。
+    ログ出力レベルを設定します。 ``DEBUG``, ``INFO``. ``NOTICE``, ``WARNING``, ``ERROR``, ``LOG``, ``FATAL``, ``PANIC`` から選択できます。デフォルトは ``INFO`` です。
 
 .. ``--help``
     Show usage of the program.
@@ -492,7 +492,7 @@ PostgreSQLサーバに接続するためのオプションです。
 ``PGDATABASE``, ``PGHOST``, ``PGPORT``, ``PGUSER``
     接続パラメータのデフォルト値として利用されます。
 
-　　また、このユーティリティは、他のほとんどの PostgreSQL ユーティリティと同様、libpq でサポートされる環境変数を使用します。詳細については、 `環境変数` の項目を参照してください。
+　　また、このユーティリティは、他のほとんどの PostgreSQL ユーティリティと同様、libpq でサポートされる環境変数を使用します。詳細については、 `環境変数`__  の項目を参照してください。
 
     .. __: http://www.postgresql.org/docs/current/static/libpq-envars.html
 
