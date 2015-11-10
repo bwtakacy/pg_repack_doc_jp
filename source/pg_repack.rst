@@ -475,39 +475,66 @@ PostgreSQLサーバに接続するためのオプションです。
 ``--version``
     バージョン情報を表示します。
 
-Environment
------------
+.. Environment
+  -----------
+  
+  ``PGDATABASE``, ``PGHOST``, ``PGPORT``, ``PGUSER``
+      Default connection parameters
+  
+      This utility, like most other PostgreSQL utilities, also uses the
+      environment variables supported by libpq (see `Environment Variables`__).
+  
+      .. __: http://www.postgresql.org/docs/current/static/libpq-envars.html
+
+環境変数
+---------
 
 ``PGDATABASE``, ``PGHOST``, ``PGPORT``, ``PGUSER``
-    Default connection parameters
+    接続パラメータのデフォルト値として利用されます。
 
-    This utility, like most other PostgreSQL utilities, also uses the
-    environment variables supported by libpq (see `Environment Variables`__).
+　　また、このユーティリティは、他のほとんどの PostgreSQL ユーティリティと同様、libpq でサポートされる環境変数を使用します。詳細については、 `環境変数` の項目を参照してください。
 
     .. __: http://www.postgresql.org/docs/current/static/libpq-envars.html
 
+.. Examples
+  --------
+  
+  Perform an online CLUSTER of all the clustered tables in the database
+  ``test``, and perform an online VACUUM FULL of all the non-clustered tables::
+  
+      $ pg_repack test
+  
+  Perform an online VACUUM FULL on the tables ``foo`` and ``bar`` in the
+  database ``test`` (an eventual cluster index is ignored)::
+  
+      $ pg_repack --no-order --table foo --table bar test
+  
+  Move all indexes of table ``foo`` to tablespace ``tbs``::
+  
+      $ pg_repack -d test --table foo --only-indexes --tablespace tbs
+  
+  Move the specified index to tablespace ``tbs``::
+  
+      $ pg_repack -d test --index idx --tablespace tbs
 
-Examples
---------
+利用例
+-------
 
-Perform an online CLUSTER of all the clustered tables in the database
-``test``, and perform an online VACUUM FULL of all the non-clustered tables::
+以下のコマンドは、 ``test`` データベースのクラスタ可能なテーブル全てに対してオンラインCLUSTERを行い、その他のテーブルに対してオンラインVACUUM FULLを行います。::
 
     $ pg_repack test
 
-Perform an online VACUUM FULL on the tables ``foo`` and ``bar`` in the
-database ``test`` (an eventual cluster index is ignored)::
+``test`` データベースの ``foo`` テーブルと ``bar`` テーブルに対してオンラインVACUUM FULLを実行するには、以下のようにします。 ::
 
     $ pg_repack --no-order --table foo --table bar test
 
-Move all indexes of table ``foo`` to tablespace ``tbs``::
+``foo`` テーブルのインデックス全てをテーブル空間 ``tbs`` に移動するには、以下のようにします。 ::
 
     $ pg_repack -d test --table foo --only-indexes --tablespace tbs
 
-Move the specified index to tablespace ``tbs``::
+インデックス ``idx`` をテーブル空間 ``tbs`` に移動するには、以下のようにします。  ::
 
     $ pg_repack -d test --index idx --tablespace tbs
-
 
 Diagnostics
 -----------
