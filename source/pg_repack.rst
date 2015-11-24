@@ -756,39 +756,72 @@ ACCESS SHAREロックを対象テーブルに対して保持しつづけるか�
 大抵はpg_repackが失敗してロールバックが適切に行われますが、古いバージョンでは
 いくつかのケースでデータ不整合を引き起こす可能性があります。
 
-Details
--------
+.. Details
+  -------
 
-Full Table Repacks
-^^^^^^^^^^^^^^^^^^
+動作詳細
+---------
 
-To perform a full-table repack, pg_repack will:
+.. Full Table Repacks
+  ^^^^^^^^^^^^^^^^^^
+  
+  To perform a full-table repack, pg_repack will:
+  
+  1. create a log table to record changes made to the original table
+  2. add a trigger onto the original table, logging INSERTs, UPDATEs and DELETEs into our log table
+  3. create a new table containing all the rows in the old table
+  4. build indexes on this new table
+  5. apply all changes which have accrued in the log table to the new table
+  6. swap the tables, including indexes and toast tables, using the system catalogs
+  7. drop the original table
+  
+  pg_repack will only hold an ACCESS EXCLUSIVE lock for a short period during
+  initial setup (steps 1 and 2 above) and during the final swap-and-drop phase
+  (steps 6 and 7). For the rest of its time, pg_repack only needs
+  to hold an ACCESS SHARE lock on the original table, meaning INSERTs, UPDATEs,
+  and DELETEs may proceed as usual.
 
-1. create a log table to record changes made to the original table
-2. add a trigger onto the original table, logging INSERTs, UPDATEs and DELETEs into our log table
-3. create a new table containing all the rows in the old table
-4. build indexes on this new table
-5. apply all changes which have accrued in the log table to the new table
-6. swap the tables, including indexes and toast tables, using the system catalogs
-7. drop the original table
+テーブル再編成
+^^^^^^^^^^^^^^^
 
-pg_repack will only hold an ACCESS EXCLUSIVE lock for a short period during
-initial setup (steps 1 and 2 above) and during the final swap-and-drop phase
-(steps 6 and 7). For the rest of its time, pg_repack only needs
-to hold an ACCESS SHARE lock on the original table, meaning INSERTs, UPDATEs,
-and DELETEs may proceed as usual.
+テーブル全体を再編成する場合、pg_repackは以下のように動作します:
 
+1. 対象のテーブルに対して実行される変更を記録するためのログテーブルを作成します
+2. 対象のテーブルに、INSERT、UPDATE、DELETEが行われた際にログテーブルに変更内容を記録するトリガを追加します
+3. 対象テーブルに含まれるレコードを元に、新しいテーブルを指定した編成順でレコードを並ばせながら作成します
+4. 新しいテーブルに対してインデックスを作成します
+5. 再編成中に行われた元のテーブルに対する変更内容をログテーブルから取り出し、新しいテーブルに反映します
+6. システムカタログを更新し、元のテーブルと新しいテーブルを入れ替えます。インデックスやトーストテーブルも入れ替えます
+7. 元のテーブルを削除します
 
-Index Only Repacks
-^^^^^^^^^^^^^^^^^^
+pg_repackは上の手順の中で、始めの1.と2.の時点、および最後の6.と7.の時点で対象のテーブルに対する
+ACCESS EXCLUSIVEロックを取得します。その他のステップでは、ACCESS SHAREロックを必要とするだけなので、
+元のテーブルに対するINSERT, UPDATE, DELETE操作は通常通りに実行されます。
 
-To perform an index-only repack, pg_repack will:
+.. Index Only Repacks
+  ^^^^^^^^^^^^^^^^^^
+  
+  To perform an index-only repack, pg_repack will:
+  
+  1. create new indexes on the table using CONCURRENTLY matching the definitions of the old indexes
+  2. swap out the old for the new indexes in the catalogs
+  3. drop the old indexes
+  
+  Creating indexes concurrently comes with a few caveats, please see `the documentation`__ for details.
+  
+      .. __: http://www.postgresql.org/docs/current/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
 
-1. create new indexes on the table using CONCURRENTLY matching the definitions of the old indexes
-2. swap out the old for the new indexes in the catalogs
-3. drop the old indexes
+インデックスのみの再編成
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creating indexes concurrently comes with a few caveats, please see `the documentation`__ for details.
+インデックスのみ再編成する場合、pg_repackは以下のように動作します:
+
+1. 元のインデックス定義に添って、新しいインデックスをCONCURRENTLYオプションを利用して作成します
+2. システムカタログを更新し、元のインデックスと新しいインデックスを入れ替えます
+3. 元のインデックスを削除します
+
+インデックス作成のCONCURRENTLYオプションにはいくつかの注意点があります。
+詳細は、 `PostgreSQLドキュメント`__ を参照してください。
 
     .. __: http://www.postgresql.org/docs/current/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
 
