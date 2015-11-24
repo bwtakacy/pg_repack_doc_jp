@@ -539,91 +539,167 @@ PostgreSQLサーバに接続するためのオプションです。
 Diagnostics
 -----------
 
-Error messages are reported when pg_repack fails. The following list shows the
-cause of errors.
+.. Error messages are reported when pg_repack fails. The following list shows the
+  cause of errors.
+  
+  You need to cleanup by hand after fatal errors. To cleanup, just remove
+  pg_repack from the database and install it again: for PostgreSQL 9.1 and
+  following execute ``DROP EXTENSION pg_repack CASCADE`` in the database where
+  the error occurred, followed by ``CREATE EXTENSION pg_repack``; for previous
+  version load the script ``$SHAREDIR/contrib/uninstall_pg_repack.sql`` into the
+  database where the error occured and then load
+  ``$SHAREDIR/contrib/pg_repack.sql`` again.
 
-You need to cleanup by hand after fatal errors. To cleanup, just remove
-pg_repack from the database and install it again: for PostgreSQL 9.1 and
-following execute ``DROP EXTENSION pg_repack CASCADE`` in the database where
-the error occurred, followed by ``CREATE EXTENSION pg_repack``; for previous
-version load the script ``$SHAREDIR/contrib/uninstall_pg_repack.sql`` into the
-database where the error occured and then load
-``$SHAREDIR/contrib/pg_repack.sql`` again.
+pg_repackが失敗した場合、エラーメッセージが表示されます。
+エラーの原因について以下に列記します。
 
-.. class:: diag
+FATALエラーが発生した場合、手動でクリーンアップを行う必要があります。
+クリーンアップするには、pg_repackをデータベースから一度削除し、再度登録するだけです。
+PostgreSQL 9.1以降では、 ``DROP EXTENSION pg_repack CASCADE`` をエラーが起きた
+データベースで実行し、続いて ``CREATE EXTENSION pg_repack`` を実行します。
+これより古いバージョンの場合、 ``$SHAREDIR/contrib/uninstall_pg_repack.sql`` 
+スクリプトをエラーが起きたデータベースに対して実行し、その後 
+``$SHAREDIR/contrib/pg_repack.sql`` を同様に実行します。
 
-INFO: database "db" skipped: pg_repack VER is not installed in the database
+..  class:: diag
+
+.. INFO: database "db" skipped: pg_repack VER is not installed in the database
     pg_repack is not installed in the database when the ``--all`` option is
     specified.
+   
+    Create the pg_repack extension in the database.
 
+INFO: database "db" skipped: pg_repack VER is not installed in the database
+    ``--all`` オプション指定時に、pg_repackがインストールされていない
+    データベースに対して表示されます。
+
+    該当のデータベースに対してpg_repackをインストールしてください。
+
+.. ERROR: pg_repack VER is not installed in the database
+    pg_repack is not installed in the database specified by ``--dbname``.
+  
     Create the pg_repack extension in the database.
 
 ERROR: pg_repack VER is not installed in the database
-    pg_repack is not installed in the database specified by ``--dbname``.
+    ``--dbname`` オプション指定時に、指定したデータベースにpg_repackが
+    インストールされていない場合に表示されます。
 
-    Create the pg_repack extension in the database.
+    該当のデータベースに対してpg_repackをインストールしてください。
 
-ERROR: program 'pg_repack V1' does not match database library 'pg_repack V2'
+.. ERROR: program 'pg_repack V1' does not match database library 'pg_repack V2'
     There is a mismatch between the ``pg_repack`` binary and the database
     library (``.so`` or ``.dll``).
-
+  
     The mismatch could be due to the wrong binary in the ``$PATH`` or the
     wrong database being addressed. Check the program directory and the
     database; if they are what expected you may need to repeat pg_repack
     installation.
 
-ERROR: extension 'pg_repack V1' required, found extension 'pg_repack V2'
+ERROR: program 'pg_repack V1' does not match database library 'pg_repack V2'
+    There is a mismatch between the ``pg_repack`` binary and the database
+    library (``.so`` or ``.dll``).
+
+    データベースに登録されたpg_repackがバージョン2系であるのに、クライアント側
+    コマンドのpg_repackのバージョンが1系である場合に表示されます。
+    ``$PATH`` に誤ったpg_repackのバイナリを指定していたり、接続先のデータベースが
+    間違っている可能性があります。pg_repackプログラムがインストールされた
+    ディレクトリとデータベースを確認してください。それらが適切である場合、
+    pg_repackを再インストールしてください。
+
+.. ERROR: extension 'pg_repack V1' required, found extension 'pg_repack V2'
     The SQL extension found in the database does not match the version
     required by the pg_repack program.
-
+  
     You should drop the extension from the database and reload it as described
     in the installation_ section.
 
-ERROR: relation "table" must have a primary key or not-null unique keys
+ERROR: extension 'pg_repack V1' required, found extension 'pg_repack V2'
+    クライアント側のpg_repackがバージョン1系であるのに、データベース側に
+    登録されたpg_repackがバージョン2系の場合に表示されます。
+    当該データベースからpg_repackを削除し、 `インストール`_ に従って
+    再登録してください。 
+
+.. ERROR: relation "table" must have a primary key or not-null unique keys
     The target table doesn't have a PRIMARY KEY or any UNIQUE constraints
     defined.
-
+  
     Define a PRIMARY KEY or a UNIQUE constraint on the table.
 
-ERROR: query failed: ERROR: column "col" does not exist
-    The target table doesn't have columns specified by ``--order-by`` option.
+ERROR: relation "table" must have a primary key or not-null unique keys
+    対象のテーブルが主キーもしくはNOT NULLなユニーク制約を持っていない場合に表示されます。
+    主キーもしくはユニーク制約を定義してください。
 
+.. ERROR: query failed: ERROR: column "col" does not exist
+    The target table doesn't have columns specified by ``--order-by`` option.
+  
     Specify existing columns.
 
-WARNING: the table "tbl" already has a trigger called z_repack_trigger
+ERROR: query failed: ERROR: column "col" does not exist
+    対象のテーブルが  ``--order-by`` オプションで指定したカラムを持っていない場合に表示されます。
+    存在しているカラムを指定してください。
+
+.. WARNING: the table "tbl" already has a trigger called z_repack_trigger
     The trigger was probably installed during a previous attempt to run
     pg_repack on the table which was interrupted and for some reason failed
     to clean up the temporary objects.
-
+  
     You can remove all the temporary objects by dropping and re-creating the
     extension: see the installation_ section for the details.
 
-WARNING: trigger "trg" conflicting on table "tbl"
+WARNING: the table "tbl" already has a trigger called z_repack_trigger
+    以前に実行したが何らかの理由で中断したか、あるいは失敗したpg_repackコマンドにより、
+    対象テーブルにpg_repackが利用するトリガが残存している場合に表示されます。
+    pg_repackを一度削除して、再度登録することで、こうした一時オブジェクトを削除できます。
+    `インストール`_ を参照してください。
+    
+.. WARNING: trigger "trg" conflicting on table "tbl"
     The target table has a trigger whose name follows ``z_repack_trigger``
     in alphabetical order.
-
+  
     The ``z_repack_trigger`` should be the last BEFORE trigger to fire.
     Please rename your trigger so that it sorts alphabetically before
     pg_repack's one; you can use::
+  
+        ALTER TRIGGER zzz_my_trigger ON sometable RENAME TO yyy_my_trigger;
+
+WARNING: trigger "trg" conflicting on table "tbl"
+    対象のテーブルが、pg_repackが利用する ``z_repack_trigger`` という名前のトリガ
+    よりもアルファベット順で後ろになるような名前のトリガを持っている場合に表示されます。
+    ``z_repack_trigger`` トリガは最後に実行されるBEFOREトリガになる必要があります。
+    該当のトリガ名称を変更してください。::
 
         ALTER TRIGGER zzz_my_trigger ON sometable RENAME TO yyy_my_trigger;
 
-ERROR: Another pg_repack command may be running on the table. Please try again
+.. ERROR: Another pg_repack command may be running on the table. Please try again
     later.
-
+  
    There is a chance of deadlock when two concurrent pg_repack commands are run
    on the same table. So, try to run the command after some time.
+
+ERROR: Another pg_repack command may be running on the table. Please try again
+    同じテーブルに複数のpg_repackが同時に実行されている場合に表示されます。
+    これはデッドロックを引き起こす可能性があるため、片方のpg_repackが終了するのを
+    待って再度実行してください。
+
+.. WARNING: Cannot create index  "schema"."index_xxxxx", already exists
+  DETAIL: An invalid index may have been left behind by a previous pg_repack on
+  the table which was interrupted. Please use DROP INDEX "schema"."index_xxxxx"
+  to remove this index and try again.
+  
+   A temporary index apparently created by pg_repack has been left behind, and
+   we do not want to risk dropping this index ourselves. If the index was in
+   fact created by an old pg_repack job which didn't get cleaned up, you
+   should just use DROP INDEX and try the repack command again.
 
 WARNING: Cannot create index  "schema"."index_xxxxx", already exists
 DETAIL: An invalid index may have been left behind by a previous pg_repack on
 the table which was interrupted. Please use DROP INDEX "schema"."index_xxxxx"
 to remove this index and try again.
 
-   A temporary index apparently created by pg_repack has been left behind, and
-   we do not want to risk dropping this index ourselves. If the index was in
-   fact created by an old pg_repack job which didn't get cleaned up, you
-   should just use DROP INDEX and try the repack command again.
-
+    以前に実行したが何らかの理由で中断したか、あるいは失敗したpg_repackコマンドにより、
+    pg_repackが利用する一時的なインデックスが残存している場合に表示されます。
+    DROP INDEXコマンドにより該当のインデックスを削除して、pg_repackを再実行してください。
+    
 
 Restrictions
 ------------
