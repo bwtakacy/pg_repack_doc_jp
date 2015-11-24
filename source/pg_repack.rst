@@ -701,34 +701,60 @@ to remove this index and try again.
     DROP INDEXコマンドにより該当のインデックスを削除して、pg_repackを再実行してください。
     
 
-Restrictions
-------------
+.. Restrictions
+  ------------
+  
+  pg_repack comes with the following restrictions.
 
-pg_repack comes with the following restrictions.
+制約
+-----
 
-Temp tables
-^^^^^^^^^^^
+pg_repackには以下の制約があります。
 
-pg_repack cannot reorganize temp tables.
+.. Temp tables
+  ^^^^^^^^^^^
+  
+  pg_repack cannot reorganize temp tables.
 
-GiST indexes
+一時テーブル
 ^^^^^^^^^^^^
 
-pg_repack cannot reorganize tables using GiST indexes.
+pg_repackは一時テーブルは再編成できません。
 
-DDL commands
+.. GiST indexes
+  ^^^^^^^^^^^^
+  
+  pg_repack cannot reorganize tables using GiST indexes.
+
+GiSTインデックス
+^^^^^^^^^^^^^^^^
+
+pg_repackはGiSTインデックスを使ってテーブルを再編成することはできません。
+
+.. DDL commands
+  ^^^^^^^^^^^^
+  
+  You will not be able to perform DDL commands of the target table(s) **except**
+  VACUUM or ANALYZE while pg_repack is working. pg_repack will hold an
+  ACCESS SHARE lock on the target table during a full-table repack, to enforce
+  this restriction.
+  
+  If you are using version 1.1.8 or earlier, you must not attempt to perform any
+  DDL commands on the target table(s) while pg_repack is running. In many cases
+  pg_repack would fail and rollback correctly, but there were some cases in these
+  earlier versions which could result in data corruption.
+
+DDLコマンド
 ^^^^^^^^^^^^
 
-You will not be able to perform DDL commands of the target table(s) **except**
-VACUUM or ANALYZE while pg_repack is working. pg_repack will hold an
-ACCESS SHARE lock on the target table during a full-table repack, to enforce
-this restriction.
+pg_repackを実行している間、VACUUMもしくはANALYZE以外のDDLコマンドを対象の
+テーブルに対して実行することはできません。何故ならば、pg_repackは
+ACCESS SHAREロックを対象テーブルに対して保持しつづけるからです。
 
-If you are using version 1.1.8 or earlier, you must not attempt to perform any
-DDL commands on the target table(s) while pg_repack is running. In many cases
-pg_repack would fail and rollback correctly, but there were some cases in these
-earlier versions which could result in data corruption.
-
+バージョン1.1.8もしくはそれ以前のバージョンを使っている場合、あらゆるDDL
+コマンドをpg_repackが走っているテーブルに対して実行することができません。
+大抵はpg_repackが失敗してロールバックが適切に行われますが、古いバージョンでは
+いくつかのケースでデータ不整合を引き起こす可能性があります。
 
 Details
 -------
