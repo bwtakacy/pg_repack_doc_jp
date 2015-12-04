@@ -536,8 +536,11 @@ PostgreSQLサーバに接続するためのオプションです。
 
     $ pg_repack -d test --index idx --tablespace tbs
 
-Diagnostics
------------
+.. Diagnostics
+   -----------
+
+トラブルシューティング
+----------------------
 
 .. Error messages are reported when pg_repack fails. The following list shows the
   cause of errors.
@@ -561,13 +564,13 @@ PostgreSQL 9.1以降では、 ``DROP EXTENSION pg_repack CASCADE`` をエラー�
 スクリプトをエラーが起きたデータベースに対して実行し、その後 
 ``$SHAREDIR/contrib/pg_repack.sql`` を同様に実行します。
 
-..  class:: diag
-
 .. INFO: database "db" skipped: pg_repack VER is not installed in the database
     pg_repack is not installed in the database when the ``--all`` option is
     specified.
    
     Create the pg_repack extension in the database.
+
+.. class:: diag
 
 INFO: database "db" skipped: pg_repack VER is not installed in the database
     ``--all`` オプション指定時に、pg_repackがインストールされていない
@@ -826,26 +829,41 @@ ACCESS EXCLUSIVEロックを取得します。その他のステップでは、A
     .. __: http://www.postgresql.org/docs/current/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
 
 
-Releases
---------
+.. Releases
+  --------
+
+リリースノート
+---------------
+
+.. * pg_repack 1.3.1
+..  * Added support for PostgreSQL 9.4.
 
 * pg_repack 1.3.1
 
-  * Added support for PostgreSQL 9.4.
+ * PostgreSQL 9.4をサポートしました
+
+
+.. * pg_repack 1.3
+..  * Added ``--schema`` to repack only the specified schema (issue #20).
+..  * Added ``--dry-run`` to do a dry run (issue #21).
+..  * Fixed advisory locking for >2B OID values (issue #30).
+..  * Avoid possible deadlock when other sessions lock a to-be-repacked
+    table (issue #32).
+..  * Performance improvement for performing sql_pop DELETEs many-at-a-time.
+..  * Attempt to avoid pg_repack taking forever when dealing with a
+    constant heavy stream of changes to a table.
 
 * pg_repack 1.3
 
-  * Added ``--schema`` to repack only the specified schema (issue #20).
-  * Added ``--dry-run`` to do a dry run (issue #21).
-  * Fixed advisory locking for >2B OID values (issue #30).
-  * Avoid possible deadlock when other sessions lock a to-be-repacked
-    table (issue #32).
-  * Performance improvement for performing sql_pop DELETEs many-at-a-time.
-  * Attempt to avoid pg_repack taking forever when dealing with a
-    constant heavy stream of changes to a table.
+  * 特定のスキーマのみを再編成対象とする ``--schema`` オプションを追加しました ( issue #20)
+  * ドライランのための ``--dry-run`` オプションを追加しました (issue #21)
+  * 勧告的ロックを取得する際のOIDの扱いを修正しました (issue #30)
+  * 再編成予定のテーブルに対して別のセッションたロックを保持している場合にデッドロックが起きないように修正しました (issue #32) 
+  * 一度に複数のDELETE操作をsql_popで取り扱う際の性能を改善しました
+  * 常に高負荷の更新が行われているテーブルに対する再編成処理が終わらない事象が起きないように修正しました
 
-* pg_repack 1.2
-
+.. * pg_repack 1.2
+  
   * Support PostgreSQL 9.3.
   * Added ``--tablespace`` and ``--moveidx`` options to perform online
     SET TABLESPACE.
@@ -860,8 +878,21 @@ Releases
   * Fixed data corruption bug on delete (pg_repack issue #23).
   * More helpful program output and error messages.
 
-* pg_repack 1.1.8
+* pg_repack 1.2
 
+  * PostgreSQL 9.3をサポートしました
+  * オンラインSET TABLESPACE文に相当する処理を行うためのオプション ``--tablespace``,  ``--moveidx`` を追加しました
+  * 特定のインデックスのみを再編成するためのオプション ``--index`` を追加しました
+  * 特定のテーブルのインデックスをまとめて再編成するオプション ``--only-indexes`` を追加しました
+  * 並列実行のためのオプション ``--jobs`` を追加しました
+  * クラスタキーを持たないテーブルに対してVACUUM FULL相当の処理を行うために ``--no-order`` オプションを明示的に指定しなくてもよいようにしました (pg_repack issue #6) 
+  * 他のデータベースにおけるロックを待たないようにしました (pg_repack issue #11)
+  * バグ修正: DESC, NULL FIRST/LAST, COLLATEを持つインデックスキーを正しく取り扱えるように修正しました (pg_repack issue #3)
+  * 同時に行われる削除操作によってデータ破壊が起こる可能性があったため修正しました (pg_repack issue #23)
+  * 出力メッセージとエラーメッセージを改善しました
+
+.. * pg_repack 1.1.8
+  
   * Added support for PostgreSQL 9.2.
   * Added support for CREATE EXTENSION on PostgreSQL 9.1 and following.
   * Give user feedback while waiting for transactions to finish  (pg_reorg
@@ -875,14 +906,32 @@ Releases
     (pg_reorg issue #9).
   * Bugfix: Never choose a partial index as primary key (pg_reorg issue #22).
 
-* pg_reorg 1.1.7 (2011-08-07)
+* pg_repack 1.1.8
 
+  * PostgreSQL 9.2をサポートしました
+  * PostgreSQL 9.1およびそれ以降のバージョンでCREATE EXTENSIONによるインストールが行えるようにしました
+  * 他のトランザクションの終了を待っていることをユーザに通知するようにしました (pg_reorg issue #5)
+  * バグ修正: ストリーミングレプリケーション構成において、新たにマスタに昇格したサーバ上で動作するように修正しました (pg_reorg issue #1)
+  * バグ修正: pg_repackとSlony 2.0/2.1が競合しないように修正しました (pg_reorg issue #4)
+  * バグ修正: カラム名を適切にエスケープするように修正しました (pg_reorg issue #6)
+  * バグ修正: invalidなインデックスを再編成の対象としたり、クラスタキーとして扱うことがないように修正しました (pg_reorg issue #9)
+  * バグ修正: 部分インデックスを主キーとして選択しないように修正しました (pg_reorg issue #22)
+
+.. * pg_reorg 1.1.7 (2011-08-07)
+  
   * Bugfix: VIEWs and FUNCTIONs could be corrupted that used a reorganized
     table which has a dropped column.
   * Supports PostgreSQL 9.1 and 9.2dev. (but EXTENSION is not yet)
 
+* pg_reorg 1.1.7 (2011-08-07)
 
-See Also
+  * バグ修正: 削除されたカラムを持つテーブルを再編成した際に、そのテーブルに対するビューや関数が壊れないように修正しました
+  * PostgreSQL 9.1および9.2devをサポートしました (EXTENSIONはまだサポートしていません)
+
+.. See Also
+   --------
+
+関連項目
 --------
 
 * `clusterdb <http://www.postgresql.org/docs/current/static/app-clusterdb.html>`__
